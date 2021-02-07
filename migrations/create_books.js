@@ -1,0 +1,12 @@
+const knex = require('../db/knex');
+
+knex.schema.createTable('books', (table) => {
+    table.increments('id')
+    table.string('title')
+    table.string('description')
+    table.float('rating')
+}).then(() => console.log("books table created"))
+    .catch((err) => { console.log(err); throw err })
+    .finally(() => {
+        knex.destroy();
+});
