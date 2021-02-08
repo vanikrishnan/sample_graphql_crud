@@ -12,6 +12,15 @@ const BookInput = new GraphQLInputObjectType({
             description:{
                 type: GraphQLString
             },
+            subtitle:{
+                type: GraphQLString
+            },
+            author:{
+                type: GraphQLString
+            },
+            website:{
+                type: GraphQLString
+            },
             rating:{
                 type: GraphQLFloat
             }
@@ -35,10 +44,29 @@ const Book = new GraphQLObjectType({
                 resolve(book) {
                     return book.title
                 }
-            }, description: {
+            }, 
+            description: {
                 type: GraphQLString,
                 resolve(book) {
                     return book.description
+                }
+            }, 
+            subtitle: {
+                type: GraphQLString,
+                resolve(book) {
+                    return book.subtitle
+                }
+            }, 
+            author: {
+                type: GraphQLString,
+                resolve(book) {
+                    return book.author
+                }
+            }, 
+            website: {
+                type: GraphQLString,
+                resolve(book) {
+                    return book.website
                 }
             },
             rating: {
@@ -59,14 +87,7 @@ const query = new GraphQLObjectType({
             book : {
                 type: new GraphQLList(Book),
                 resolve(root,args) {
-                    console.log("in persons resolve", knex);
                     return knex.from('books').select("*");
-                    // knex.from('books').select('*').then(data=>{
-                    //     console.log(data);
-                    //     return data;
-                    // }).catch(err=>{
-                    //     console.log(err)
-                    // })
                 }
             },
             bookByID: {
@@ -77,7 +98,6 @@ const query = new GraphQLObjectType({
                     }
                 },
                 resolve(root, args) {
-                    console.log("in persons resolve", knex);
                     return knex.from('books').select('*').where('id',args.id).first();
                 }
             }
@@ -99,14 +119,29 @@ const mutation = new GraphQLObjectType({
                     description: {
                         type: new GraphQLNonNull(GraphQLString)
                     },
+                    subtitle: {
+                        type: new GraphQLNonNull(GraphQLString)
+                    },
+                    author: {
+                        type: new GraphQLNonNull(GraphQLString)
+                    },
+                    website: {
+                        type: new GraphQLNonNull(GraphQLString)
+                    },
                     rating: {
                         type: new GraphQLNonNull(GraphQLFloat)
                     }
                 },
                 resolve(root, args) {
-                    return knex('books').insert({
-                        title: args.title,description:args.description,rating:args.rating
-                    },'*')
+                    const bookData = {
+                        title: args.title,
+                        description:args.description,
+                        subtitle: args.subtitle,
+                        author: args.author,
+                        website: args.website,
+                        rating:args.rating
+                    };
+                    return knex('books').insert(bookData,'*')
                     .then(data=>{
                         return data[0];
                     }).catch(err=>{
