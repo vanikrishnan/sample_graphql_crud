@@ -1,6 +1,24 @@
 const { GraphQLInputObjectType, GraphQLInt, GraphQLString, GraphQLFloat, GraphQLObjectType, GraphQLList, GraphQLNonNull, GraphQLSchema } = require("graphql");
 const knex = require("./db/knex");
 
+const BookInput = new GraphQLInputObjectType({
+    name:"BookInput",
+    description:"This is Book Input",
+    fields:() =>{
+        return {
+            title:{
+                type: GraphQLString
+            },
+            description:{
+                type: GraphQLString
+            },
+            rating:{
+                type: GraphQLFloat
+            }
+        }
+    }
+})
+
 const Book = new GraphQLObjectType({
     name: 'Book',
     description: "This is a  Book",
@@ -33,24 +51,6 @@ const Book = new GraphQLObjectType({
     }
 });
 
-// const BookInput = new GraphQLObjectType({
-//     name:"BookInput",
-//     description:"This is Book Input",
-//     fields:()=> {
-//         return {
-//             title: {
-//                 type: GraphQLString
-//             },
-//             description: {
-//                 type: GraphQLString
-//             },
-//             rating: {
-//                 type: GraphQLFloat
-//             }
-//         }
-//     }
-// })
-
 const query = new GraphQLObjectType({
     name:"RootQuery",
     description:"This is Root Query",
@@ -73,7 +73,7 @@ const query = new GraphQLObjectType({
                 type: Book,
                 args: {
                     id: {
-                        type:GraphQLInt
+                        type: new GraphQLNonNull(GraphQLInt)
                     }
                 },
                 resolve(root, args) {
@@ -108,32 +108,36 @@ const mutation = new GraphQLObjectType({
                         title: args.title,description:args.description,rating:args.rating
                     },'*')
                     .then(data=>{
-                        console.log(data);
                         return data[0];
                     }).catch(err=>{
                         console.log(err);
                     })
                 }
             },
-            // updateBook: {
-            //     type: Book, 
-            //     args: {
-            //         id: {
-            //             type: GraphQLInt
-            //         },
-            //         input: {
-            //             type: BookInput
-            //         }
-            //     },
-            //     resolve(root,args) {
-            //         return knex('books').where('id',args.id).update(args.updatedBookData, '*');
-            //     }
-            // },
+            updateBook: {
+                type: Book, 
+                args: {
+                    id: {
+                        type: new GraphQLNonNull(GraphQLInt)
+                    },
+                    input: {
+                        type: new GraphQLNonNull(BookInput) 
+                    }
+                },
+                resolve(root,args) {
+                    return knex('books').where('id',args.id).update(args.input, '*').then(data=>{
+                        return data[0];
+                    }).catch(err=>{
+                        console.log(err);
+                    })
+                    
+                }
+            },
             deleteBook: {
                 type: GraphQLString,
                 args: {
                     id: {
-                        type:GraphQLInt
+                        type:new GraphQLNonNull(GraphQLInt)
                     }
                 },
                 resolve(root,args) {
