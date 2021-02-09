@@ -39,28 +39,6 @@ const books = [
     "website": "https://leanpub.com/understandinges6/read",
     "rating": 3.9
   }
-//   ,
-//   {
-//     "title": "You Don't Know JS",
-//     "subtitle": "ES6 & Beyond",
-//     "author": "Kyle Simpson",
-//     "description": "No matter how much experience you have with JavaScript, odds are you don’t fully understand the language. As part of the "You Don’t Know JS" series, this compact guide focuses on new features available in ECMAScript 6 (ES6), the latest version of the standard upon which JavaScript is built.",
-//     "website": "https://github.com/getify/You-Dont-Know-JS/tree/master/es6%20&%20beyond"
-//   },
-//   {
-//     "title": "Git Pocket Guide",
-//     "subtitle": "A Working Introduction",
-//     "author": "Richard E. Silverman",
-//     "description": "This pocket guide is the perfect on-the-job companion to Git, the distributed version control system. It provides a compact, readable introduction to Git for new users, as well as a reference to common commands and procedures for those of you with Git experience.",
-//     "website": "http://chimera.labs.oreilly.com/books/1230000000561/index.html"
-//   },
-//   {
-//     "title": "Designing Evolvable Web APIs with ASP.NET",
-//     "subtitle": "Harnessing the Power of the Web",
-//     "author": "Glenn Block, et al.",
-//     "description": "Design and build Web APIs for a broad range of clients—including browsers and mobile devices",
-//     "website": "http://chimera.labs.oreilly.com/books/1234000001708/index.html"
-//   }
 ]
 
-module.exports=books;
+module.exports = books;

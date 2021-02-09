@@ -12,4 +12,4 @@ knex.schema.createTable('books', (table) => {
     .catch((err) => { console.log(err); throw err })
     .finally(() => {
         knex.destroy();
-});
+    });
