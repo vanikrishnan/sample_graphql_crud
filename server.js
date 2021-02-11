@@ -8,13 +8,13 @@ const schema = require('./schema');
 app.use(cors(), bodyParser.json());
 
 
-const { graphiqlExpress } = require('apollo-server-express');
+// const { graphiqlExpress } = require('apollo-server-express');
 app.use('/graphql', graphqlHTTP({
     schema: schema,
     pretty: true,
     graphiql: true
 }));
-app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
+// app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 
 
 app.listen(port, () => {
