@@ -29,8 +29,8 @@ const BookInput = new GraphQLInputObjectType({
 });
 
 const LocationInput = new GraphQLInputObjectType({
-    name:"LocationInput",
-    description:"This is Location Input",
+    name: "LocationInput",
+    description: "This is Location Input",
     fields: () => {
         return {
             country: {
@@ -58,7 +58,7 @@ const AuthorInput = new GraphQLInputObjectType({
 const Author = new GraphQLObjectType({
     name: 'Author',
     description: 'This is Author',
-    fields:() => {
+    fields: () => {
         return {
             id: {
                 type: GraphQLInt,
@@ -85,7 +85,7 @@ const Author = new GraphQLObjectType({
 const Location = new GraphQLObjectType({
     name: 'Location',
     description: 'This is Location',
-    fields:() => {
+    fields: () => {
         return {
             id: {
                 type: GraphQLInt,
@@ -189,37 +189,20 @@ const query = new GraphQLObjectType({
                     return knex.from('author').select("*");
                 }
             },
-            locationSearch: {
-                type: new GraphQLList(Location),
-                args: {
-                    input: {
-                       type: new GraphQLNonNull(LocationInput)
-                    }
-                },
-                resolve(root, args) {
-                    let whereObj = args.input;
-                    let selectCriteria = '*'
-                    return knex.from('location').where(whereObj).select('*').then(data => {
-                        return data;
-                    }).catch(err => {
-                        console.log(err);
-                    })
-                }
-            },
             locationSearchByCountryAndState: {
                 type: new GraphQLList(Location),
                 args: {
                     input: {
-                       type: new GraphQLNonNull(LocationInput)
+                        type: new GraphQLNonNull(LocationInput)
                     }
                 },
                 resolve(root, args) {
                     let whereObj = args.input;
                     let selectCriteria = '*'
                     if (whereObj.country)
-                    selectCriteria = 'state'
-                    if (whereObj.country && whereObj.state) 
-                    selectCriteria = 'city';
+                        selectCriteria = 'state'
+                    if (whereObj.country && whereObj.state)
+                        selectCriteria = 'city';
                     return knex.from('location').where(whereObj).select(selectCriteria).then(data => {
                         return data;
                     }).catch(err => {
@@ -249,7 +232,7 @@ const query = new GraphQLObjectType({
                     return knex.from('book').select('*').where('id', args.id).first();
                 }
             },
-            searchTerm: {
+            searchBookByTitleOrAuthor: {
                 type: new GraphQLList(Author),
                 args: {
                     term: {
@@ -257,12 +240,14 @@ const query = new GraphQLObjectType({
                     }
                 },
                 resolve(root, args) {
-                    return knex('book').join('author', 'book.authorId', '=', 'author.id').select('*').where('author.name', 'like', `%${args.term}%`)
-                    .then(data =>{
-                        return data;
-                    }).catch(err=>{
-                        console.log(err);
+                    return knex('book').join('author', 'book.authorId', '=', 'author.id').select('*').where(function () {
+                        this.where('author.name', 'like', `%${args.term}%`).orWhere('book.title', 'like', `%${args.term}%`)
                     })
+                        .then(data => {
+                            return data;
+                        }).catch(err => {
+                            console.log(err);
+                        })
                 }
             }
         }
@@ -333,15 +318,15 @@ const mutation = new GraphQLObjectType({
                 }
             },
             deleteBook: {
-                type: GraphQLString,
+                type: GraphQLInt,
                 args: {
                     id: {
                         type: new GraphQLNonNull(GraphQLInt)
                     }
                 },
                 resolve(root, args) {
-                    return knex('book').where('id', args.id).del().then(() => {
-                        return "Book Deleted";
+                    return knex('book').returning('id').where('id', args.id).del().then((data) => {
+                        return data[0];
                     }).catch(err => {
                         console.log(err);
                     })
@@ -386,15 +371,15 @@ const mutation = new GraphQLObjectType({
                 }
             },
             deleteAuthor: {
-                type: GraphQLString,
+                type: GraphQLInt,
                 args: {
                     id: {
                         type: new GraphQLNonNull(GraphQLInt)
                     }
                 },
                 resolve(root, args) {
-                    return knex('author').where('id', args.id).del().then(() => {
-                        return "Author Deleted";
+                    return knex('author').returning('id').where('id', args.id).del().then((data) => {
+                        return data[0];
                     }).catch(err => {
                         console.log(err);
                     })
