@@ -1,5 +1,8 @@
 const { GraphQLInputObjectType, GraphQLInt, GraphQLString, GraphQLFloat, GraphQLObjectType, GraphQLList, GraphQLNonNull, GraphQLSchema } = require("graphql");
 const knex = require("./db/knex");
+const path = require('path');
+const fs = require('fs');
+const { GraphQLUpload } = require("graphql-tools");
 
 const BookInput = new GraphQLInputObjectType({
     name: "BookInput",
@@ -171,6 +174,33 @@ const Book = new GraphQLObjectType({
         }
     }
 });
+
+const File = new GraphQLObjectType({
+    name: 'File',
+    description:'This is File',
+    fields: () => {
+        return {
+            url:{
+                type: GraphQLString,
+                resolve(file) {
+                    return file.url
+                }
+            },
+            // mimetype:{
+            //     type: GraphQLString,
+            //     resolve(file) {
+            //         return file.mimetype
+            //     }
+            // },
+            // encoding:{
+            //     type: GraphQLString,
+            //     resolve(file) {
+            //         return file.encoding
+            //     }
+            // },
+        }
+    }
+})
 
 const query = new GraphQLObjectType({
     name: "RootQuery",
@@ -384,6 +414,36 @@ const mutation = new GraphQLObjectType({
                         console.log(err);
                     })
                 }
+            },
+            uploadFile: {
+                type: File,
+                args:{
+                    file:{
+                        type: new GraphQLNonNull(GraphQLUpload)
+                    }
+                },
+                async resolve(root, {file} ) {
+                    try {
+                        console.log("In Upload File");
+                        const { createReadStream, filename, mimetype, encoding } = await file; 
+                        console.log(file,"file");
+                        const stream = createReadStream()
+                        const pathName = path.join(__dirname, `/public/images/${filename}`)
+                        await stream.pipe(fs.createWriteStream(pathName));
+                        // console.log(await stream.pipe(fs.createWriteStream(pathName)))
+                        // const photo = await knex('images').insert({filename:filename}, '*');
+                        return {
+                            url: `http://localhost:3000/images/${filename}`
+                        }
+                    } catch (error) {
+                        console.log(error);
+                    }
+                    
+                    // return { 
+                    //     url: `http://localhost:3000/images/${filename}`
+                    // }
+                }
+                
             }
         }
     }
